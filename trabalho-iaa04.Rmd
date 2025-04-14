@@ -1,0 +1,139 @@
+---
+title: "TRABALHO DE IAA004 – Estatística Aplicada I"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+encoding: UTF-8
+editor_options:
+  markdown:
+    wrap: sentence
+---
+
+### Equipe 03:
+
+-   Gustavo Costa de Souza
+-   Marcos Vinicius de Melo
+-   Marcus Eneas Silveira Galvao do Rio Apa II
+-   Patricia Verdugo Pascoal
+-   Rodrigo de Araujo
+-   William de Souza Alencar
+
+# 1 Gráficos e tabelas
+
+### a) Elaborar os gráficos box-plot e histograma das variáveis “age” (idade da esposa) e “husage” (idade do marido) e comparar os resultados
+
+```{r}
+#install.packages("car")
+#install.packages("fdth")
+#install.packages("gt")
+library(car)
+suppressPackageStartupMessages(library(fdth))
+
+load("salarios.RData")
+
+summary(salarios)
+
+```
+
+```{r}
+Boxplot( ~ age, data=salarios, id=list(method="y"), 
+         ylab="Idade das esposas",
+         ylim = c(15, 90))
+
+hist(salarios$age, main="Idade das esposas", breaks = 10, xlab="Idade das esposas", 
+     ylab = "Frequencia")
+
+```
+
+```{r}
+Boxplot( ~ husage, data=salarios, id=list(n=0), 
+         ylab="Idade dos maridos",
+         ylim = c(15, 90))
+
+hist(salarios$husage, main="Idade dos maridos", xlab="Idade dos maridos", ylab = "Frequencia", breaks = 10)
+
+```
+
+**As principais comparações do estudo são:**
+
+-   A idade mediana das esposas é menor que a dos maridos.
+-   O boxplot da idade dos maridos apresentam uma maior dispersão dos dados.
+-   A distribuição de idades das esposas é mais simétrica que a dos maridos.
+-   No conjunto de idades dos maridos alguns outliers são apresentados.
+
+### b) Elaborar a tabela de frequencias das variáveis “age” (idade da esposa) e “husage” (idade do marido) e comparar os resultados
+
+```{r}
+tabela_feq_idade_esposa <- fdt(salarios$age)
+print("Tabela de frequencia das idades das esposas")
+print(tabela_feq_idade_esposa)
+```
+
+```{r}
+tabela_feq_idade_marido <- fdt(salarios$husage)
+print("Tabela de frequencia das idades dos maridos")
+print(tabela_feq_idade_marido)
+
+```
+
+**As principais conclusões do estudo são:**
+
+-   A idade mais comum entre esposas está entre 35–39 anos, e entre maridos, em uma faixa mais alta 47–52 anos.
+-   As idades dos maridos possuem uma maior amplitude da distribuição, sendo 18 a 86 frente a 17 a 59 das esposas.
+-   As idades dos maridos possuem uma leve assimetria positiva (tendência simétrica com cauda à direita).
+-   A frequência acumulada mostra que 50% das esposas estão abaixo de aproximadamente 38 anos, enquanto para maridos esse ponto de mediana está mais próximo de 40–43 anos.
+-   O grupo de maridos apresenta alguns individuos muito idosos, o que não ocorre com as esposas.
+
+------------------------------------------------------------------------
+
+# 2 Medidas de posição e dispersão
+
+### a) Calcular a média, mediana e moda das variáveis “age” (idade da esposa) e “husage” (idade do marido) e comparar os resultados
+
+```{r}
+media_esposas <- mean(salarios$age)
+cat("Media idade das esposas: ", media_esposas, "\n")
+media_maridos <- mean(salarios$husage)
+cat("Media idade dos maridos: ", media_maridos, "\n")
+
+cat("Mediana idade das esposas: ", median(salarios$age), "\n")
+cat("Mediana idade dos maridos: ", median(salarios$husage), "\n")
+
+moda_esposas <- subset(table(salarios$age), 
+       table(salarios$age) == max(table(salarios$age)))
+cat("Moda idade das esposas: ", names(moda_esposas), "com ", moda_esposas[1], "pessoas.","\n")
+
+moda_maridos <- subset(table(salarios$husage), 
+       table(salarios$husage) == max(table(salarios$husage)))
+cat("Moda idade dos maridos: ", names(moda_maridos), "com ", moda_maridos[1], "pessoas.","\n")
+
+```
+
+**As principais conclusões do estudo são:**
+
+-   A idade média dos maridos é 7.67% maior que das esposas. Isso sugere que que os maridos são mais velhos que as esposas.
+-   A idade mediana dos maridos e das esposas é muito próximas, indicando simetria na distribuição de idades ou no máximo levemente inclinada.
+-   A moda da idade dos maridos é 19% maior que das esposas, indica que a faixa etária dos maridos está concentrada em uma idade superior das esposas.
+
+
+### b) Calcular a variância, desvio padrão e coeficiente de variação das variáveis “age” (idade da esposa) e “husage” (idade do marido) e comparar os resultados
+
+```{r}
+sd_esposas <- sd(salarios$age)
+cat("Desvio padrao das idades das esposas: ", sd_esposas, "\n")
+sd_maridos <- sd(salarios$husage)
+cat("Desvio padrao das idades dos maridos: ", sd_maridos, "\n")
+
+cv_esposas <- (sd_esposas/media_esposas) * 100
+cat("Coeficiente de variacao das das idades das esposas: ", sd_esposas, "\n")
+
+cv_maridos <- (sd_maridos/media_maridos) * 100
+cat("Coeficiente de variacao das das idades dos maridos: ", cv_maridos, "\n")
+
+```
+**As principais conclusões do estudo são:**
+
+- O desvio padrão das idades dos maridos é 12.4% maior que das esposas, o que sugere uma maior variação nas idades dos maridos que das esposas.
+- As idades das esposas variam pouco na amostra, já dos maridos tem uma média dispersão dentro da amostra. 
+- O coeficiente de variação dos maridos é maior que das esposas, o que indica uma maior variabilidade das idades dos maridos.
