@@ -116,7 +116,6 @@ cat("Moda idade dos maridos: ", names(moda_maridos), "com ", moda_maridos[1], "p
 -   A idade mediana dos maridos e das esposas é muito próximas, indicando simetria na distribuição de idades ou no máximo levemente inclinada.
 -   A moda da idade dos maridos é 19% maior que das esposas, indica que a faixa etária dos maridos está concentrada em uma idade superior das esposas.
 
-
 ### b) Calcular a variância, desvio padrão e coeficiente de variação das variáveis “age” (idade da esposa) e “husage” (idade do marido) e comparar os resultados
 
 ```{r}
@@ -132,8 +131,135 @@ cv_maridos <- (sd_maridos/media_maridos) * 100
 cat("Coeficiente de variacao das das idades dos maridos: ", cv_maridos, "\n")
 
 ```
+
 **As principais conclusões do estudo são:**
 
-- O desvio padrão das idades dos maridos é 12.4% maior que das esposas, o que sugere uma maior variação nas idades dos maridos que das esposas.
-- As idades das esposas variam pouco na amostra, já dos maridos tem uma média dispersão dentro da amostra. 
-- O coeficiente de variação dos maridos é maior que das esposas, o que indica uma maior variabilidade das idades dos maridos.
+-   O desvio padrão das idades dos maridos é 12.4% maior que das esposas, o que sugere uma maior variação nas idades dos maridos que das esposas.
+-   As idades das esposas variam pouco na amostra, já dos maridos tem uma média dispersão dentro da amostra.
+-   O coeficiente de variação dos maridos é maior que das esposas, o que indica uma maior variabilidade das idades dos maridos.
+
+# 3 Testes paramétricos ou não paramétricos
+
+a)  Testar se as médias (se você escolher o teste paramétrico) ou as medianas (se você escolher o teste não paramétrico) das variáveis “age” (idade da esposa) e “husage” (idade do marido) são iguais, construir os intervalos de confiança e comparar os resultados.
+
+**Obs:**
+
+1)  Você deve fazer os testes necessários (e mostra-los no documento pdf) para saber se você deve usar o unpaired test (paramétrico) ou o teste U de Mann-Whitney (não paramétrico), justifique sua resposta sobre a escolha.
+2)  Lembre-se de que os intervalos de confiança já são mostrados nos resultados dos testes citados no item 1 acima.
+
+------------------------------------------------------------------------
+
+```{r}
+#install.packages("BSDA")
+#install.packages("onewaytests")
+#install.packages("sjPlot")
+#install.packages("devtools")
+#devtools::install_github("homerhanumat/tigerstats")
+#install.packages("misty")
+#install.packages("ggpubr")
+#install.packages("dplyr")
+
+suppressPackageStartupMessages(library("BSDA"))
+suppressPackageStartupMessages(library("onewaytests"))
+suppressPackageStartupMessages(library("sjPlot"))
+suppressPackageStartupMessages(library("tigerstats"))
+suppressPackageStartupMessages(library("misty"))
+suppressPackageStartupMessages(library("ggpubr"))
+suppressPackageStartupMessages(library("dplyr"))
+```
+
+Vamos realizar os testes necessários para utilizar o modelo paramétrico:
+
+-   Amostras independentes
+-   normalidade
+-   homogeneidade das variancias entre grupos
+
+**Premissa 1: As duas amostras sao independentes?**
+Sim, pois os grupos de esposas e maridos nao estao relacionados. Nao se trata de uma amostra ou grupos emparelhados.
+
+**Premissa 2: Os dados de cada amostra/grupo possuem distribuicao normal?**
+Vamos usar o teste Kolmogorov-Smirnov para descobrir se a idade das esposas segue uma distribuição normal.
+
+obs: Não foi utilizado Shapiro-Wilk pois possui uma limitação de 5000 individuos na amostra.
+
+teste de hipoteses:
+
+- H0: os dados sao normalmente distribuidos 
+- Ha: os dados nao sao normalmente distribuidos
+
+```{r}
+options(scipen = 999)
+
+ks.test(salarios$age, "pnorm", mean = mean(salarios$age), sd = sd(salarios$age))
+
+```
+Como pode ser observado o resultado do teste obteve p-value = 0,00000000000000022 que é menor que 0,05 logo os dados de idade das esposas não está normalmente distribuido, portanto não satifaz as restrições para utilização de modelos paramétricos.
+
+
+Vamos visualizar o resultado do teste no gráfico QQ normal.
+
+```{r}
+ggqqplot(salarios, "age")
+```
+
+
+No gráfico QQ normal é possível ver que muitos pontos estão fora da linha de referência, logo a amostra não segue uma distribuição normal, portanto **não é possível aplicar os testes paramétricos**.
+
+------------------------------------------------------------------------
+
+### Teste de requisitos impedem o uso de modelos paramétricos, logo o modelo não paramétrico U de Mann-Whitney será utilizado para testar a hipótese abaixo.
+
+a)  Testar se as medianas das variáveis “age” (idade da esposa) e “husage” (idade do marido) são iguais, construir os intervalos de confiança e comparar os resultados.
+
+```{r}
+
+# criando o data-frame longo.
+idades <- data.frame(
+  group = factor(c(rep("esposa", length(salarios$age)), rep("marido", length(salarios$husage)))),
+  age = c(salarios$age, salarios$husage)
+)
+
+levels(idades$group)
+
+# Reordenando os niveis
+idades$group <- ordered(idades$group,
+                         levels = c("esposa", "marido"))
+
+summary(idades)
+head(idades)
+```
+Vamos calcular um sumário estatistico
+
+```{r}
+group_by(idades, group) %>%
+  summarise(
+    count = n(),
+    median = median(age, na.rm = TRUE),
+    IQR = IQR(age, na.rm = TRUE)
+  )
+```
+
+Vamos visualizar os dados usando box-plots, plotaremos a "age" por "group"
+
+```{r}
+ggboxplot(idades, x = "group", y = "age", 
+          color = "group", palette=c("#00AFBB", "#E7B800"),
+          ylab = "Age", xlab = "Groups")
+```
+
+Vamos fazer o teste se a idade mediana das esposas eh igual a idade mediana dos maridos
+
+**Hipoteses do teste:**
+
+-   H0: Nao existe diferenca entre as medianas dos grupos
+-   Ha: Existe diferenca entre as medianas dos grupos
+
+```{r}
+res <- wilcox.test(age ~ group, data = idades, exact = FALSE, conf.int=TRUE)
+res
+```
+
+**As principais conclusões do estudo são:**
+
+O p-value do teste eh 0,00000000000000022, que eh menor que o nivel de significancia 0,05, logo podemos concluir que a idade mediana das esposas e dos maridos eh estatisticamente diferente (rejeitamos H0).
+O intervalo de confianca da diferenca entre as medianas esta entre -3 e -2 com uma mediana de -2,99.
