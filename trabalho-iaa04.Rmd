@@ -79,7 +79,7 @@ print(tabela_feq_idade_marido)
 
 **As principais conclusões do estudo são:**
 
--   A idade mais comum entre esposas está entre 35–39 anos, e entre maridos, em uma faixa mais alta 47–52 anos.
+-   A idade mais comum entre esposas está entre 35–39 anos, e entre maridos, em uma faixa mais alta 38–43 anos.
 -   As idades dos maridos possuem uma maior amplitude da distribuição, sendo 18 a 86 frente a 17 a 59 das esposas.
 -   As idades dos maridos possuem uma leve assimetria positiva (tendência simétrica com cauda à direita).
 -   A frequência acumulada mostra que 50% das esposas estão abaixo de aproximadamente 38 anos, enquanto para maridos esse ponto de mediana está mais próximo de 40–43 anos.
