@@ -125,7 +125,7 @@ sd_maridos <- sd(salarios$husage)
 cat("Desvio padrao das idades dos maridos: ", sd_maridos, "\n")
 
 cv_esposas <- (sd_esposas/media_esposas) * 100
-cat("Coeficiente de variacao das das idades das esposas: ", sd_esposas, "\n")
+cat("Coeficiente de variacao das das idades das esposas: ", cv_esposas, "\n")
 
 cv_maridos <- (sd_maridos/media_maridos) * 100
 cat("Coeficiente de variacao das das idades dos maridos: ", cv_maridos, "\n")
